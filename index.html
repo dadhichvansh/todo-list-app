@@ -21,6 +21,7 @@
           <p class="text-gray-600 text-sm sm:text-base">Monday, 3 Feb</p>
         </div>
         <button
+          id="new-task-btn"
           class="p-2 text-sm sm:text-base rounded-xl bg-blue-100 hover:bg-blue-200 transition duration-500 flex items-center gap-[4px] mx-2"
         >
           <img src="/assets/plus-icon.svg" alt="plus-icon" class="w-4 sm:w-5" />
@@ -31,26 +32,39 @@
         class="mx-6 mb-5 text-gray-500 flex justify-center items-center gap-3"
       >
         <button
-          class="cursor-pointer text-sm sm:text-base text-blue-600 font-semibold"
+          class="filter-btn cursor-pointer text-sm sm:text-base text-blue-600 font-semibold"
+          data-filter="all"
         >
           All
         </button>
         <span class="text-gray-400">|</span>
-        <button class="cursor-pointer text-sm sm:text-base">Open</button>
-        <button class="cursor-pointer text-sm sm:text-base">Closed</button>
+        <button
+          class="filter-btn cursor-pointer text-sm sm:text-base"
+          data-filter="open"
+        >
+          Open
+        </button>
+        <button
+          class="filter-btn cursor-pointer text-sm sm:text-base"
+          data-filter="closed"
+        >
+          Closed
+        </button>
       </section>
-      <section>
+      <section id="task-list">
         <div
-          class="m-5 bg-white p-4 py-3 flex justify-between items-center rounded-xl"
+          class="task-item m-5 bg-white p-4 py-3 flex justify-between items-center rounded-xl"
         >
           <div class="flex items-center gap-4">
             <input
               type="checkbox"
-              class="w-4 h-4 sm:w-5 sm:h-4 cursor-pointer rounded"
+              class="task-checkbox w-4 h-4 sm:w-5 sm:h-4 cursor-pointer rounded"
             />
-            <h3 class="text-lg">This is a to-do list</h3>
+            <h3 class="task-text text-lg">This is a to-do list</h3>
           </div>
-          <button class="p-1 rounded hover:bg-blue-300 transition duration-500">
+          <button
+            class="delete-btn p-1 rounded hover:bg-blue-300 transition duration-500"
+          >
             <img
               src="/assets/cross-icon.png"
               alt="cross-icon"
