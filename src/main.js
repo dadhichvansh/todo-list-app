@@ -1,18 +1,31 @@
-import "./style.css";
+import "/src/style.css";
 
 document.addEventListener("DOMContentLoaded", () => {
   const taskList = document.querySelector("#task-list");
   const newTaskButton = document.querySelector("#new-task-btn");
   const filterButtons = document.querySelectorAll(".filter-btn");
 
-  // Add a new task
-  newTaskButton.addEventListener("click", () => {
-    const taskText = prompt("Enter your new task:");
-    if (taskText) addTask(taskText);
-  });
+  // Load tasks from localStorage on page load
+  const loadTasksFromLocalStorage = () => {
+    const storedTasks = JSON.parse(localStorage.getItem("tasks")) || [];
+    storedTasks.forEach((task) => {
+      addTask(task.text, task.isChecked);
+    });
+  };
 
-  // Function to add a new task
-  function addTask(text) {
+  // Save tasks to localStorage
+  const saveTasksToLocalStorage = () => {
+    const tasks = [...document.querySelectorAll(".task-item")].map(
+      (taskItem) => ({
+        text: taskItem.querySelector(".task-text").textContent,
+        isChecked: taskItem.querySelector(".task-checkbox").checked,
+      })
+    );
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+  };
+
+  // Add a new task
+  const addTask = (text, isChecked = false) => {
     const taskItem = document.createElement("div");
     taskItem.className =
       "task-item m-5 bg-white p-4 py-3 flex justify-between items-center rounded-xl";
@@ -30,35 +43,63 @@ document.addEventListener("DOMContentLoaded", () => {
     const checkbox = taskItem.querySelector(".task-checkbox");
     const deleteBtn = taskItem.querySelector(".delete-btn");
 
-    // Toggle task completion and disable/enable delete button
+    checkbox.checked = isChecked;
+    if (isChecked) {
+      taskItem.classList.add("line-through");
+      deleteBtn.disabled = true;
+      deleteBtn.classList.add("opacity-50");
+    }
+
     checkbox.addEventListener("change", (e) => {
-      const isChecked = e.target.checked;
-      taskItem.classList.toggle("line-through", isChecked);
-      deleteBtn.disabled = isChecked;
-      deleteBtn.classList.toggle("opacity-50", isChecked); // Apply opacity when disabled
+      const checked = e.target.checked;
+      taskItem.classList.toggle("line-through", checked);
+      deleteBtn.disabled = checked;
+      deleteBtn.classList.toggle("opacity-50", checked);
+      saveTasksToLocalStorage();
     });
 
-    // Delete task if unchecked
     deleteBtn.addEventListener("click", () => {
-      if (!checkbox.checked) taskItem.remove();
+      if (!checkbox.checked) {
+        taskItem.remove();
+        saveTasksToLocalStorage();
+      }
     });
 
     taskList.appendChild(taskItem);
-  }
+    saveTasksToLocalStorage();
+  };
 
   // Filter tasks
+  const filterTasks = () => {
+    const activeFilter = document.querySelector(".filter-btn.text-blue-600")
+      .dataset.filter;
+    document.querySelectorAll(".task-item").forEach((task) => {
+      const isChecked = task.querySelector(".task-checkbox").checked;
+      task.style.display =
+        activeFilter === "all" ||
+        (activeFilter === "open" && !isChecked) ||
+        (activeFilter === "closed" && isChecked)
+          ? "flex"
+          : "none";
+    });
+  };
+
+  // Handle new task button click
+  newTaskButton.addEventListener("click", () => {
+    const taskText = prompt("Enter your new task:");
+    if (taskText) addTask(taskText);
+  });
+
+  // Handle filter button clicks
   filterButtons.forEach((btn) => {
     btn.addEventListener("click", () => {
-      const filter = btn.textContent.toLowerCase();
-      document.querySelectorAll(".task-item").forEach((task) => {
-        const isChecked = task.querySelector(".task-checkbox").checked;
-        task.style.display =
-          filter === "all" ||
-          (filter === "open" && !isChecked) ||
-          (filter === "closed" && isChecked)
-            ? "flex"
-            : "none";
-      });
+      filterButtons.forEach((b) =>
+        b.classList.remove("text-blue-600", "font-semibold")
+      );
+      btn.classList.add("text-blue-600", "font-semibold");
+      filterTasks();
     });
   });
+
+  loadTasksFromLocalStorage();
 });
